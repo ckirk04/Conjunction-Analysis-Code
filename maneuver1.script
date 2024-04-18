@@ -1,0 +1,249 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2023-09-07 13:26:02
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+
+Create Spacecraft Sat1;
+GMAT Sat1.DateFormat = UTCGregorian;
+GMAT Sat1.Epoch = '01 Jan 2023 11:59:28.000';
+GMAT Sat1.CoordinateSystem = LunaEcliptic;
+GMAT Sat1.DisplayStateType = Keplerian;
+GMAT Sat1.SMA = 1800;
+GMAT Sat1.ECC = 8.58515692165777e-07;
+GMAT Sat1.INC = 76;
+GMAT Sat1.RAAN = 45;
+GMAT Sat1.AOP = 300;
+GMAT Sat1.TA = 0;
+GMAT Sat1.ModelScale = 0.01;
+
+Create Spacecraft Sat2;
+GMAT Sat2.DateFormat = UTCGregorian;
+GMAT Sat2.Epoch = '01 Jan 2023 11:59:28.000';
+GMAT Sat2.CoordinateSystem = LunaEcliptic;
+GMAT Sat2.DisplayStateType = Keplerian;
+GMAT Sat2.SMA = 1800;
+GMAT Sat2.ECC = 8.58515692165777e-07;
+GMAT Sat2.INC = 86;
+GMAT Sat2.RAAN = 45;
+GMAT Sat2.AOP = 300;
+GMAT Sat2.TA = 0;
+GMAT Sat2.ModelScale = 0.01;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel Luna_ForceModel;
+GMAT Luna_ForceModel.CentralBody = Luna;
+GMAT Luna_ForceModel.PrimaryBodies = {Luna};
+GMAT Luna_ForceModel.PointMasses = {Earth, Mars, Sun, Jupiter};
+GMAT Luna_ForceModel.Drag = None;
+GMAT Luna_ForceModel.SRP = On;
+GMAT Luna_ForceModel.RelativisticCorrection = On;
+GMAT Luna_ForceModel.ErrorControl = RSSStep;
+GMAT Luna_ForceModel.GravityField.Luna.Degree = 70;
+GMAT Luna_ForceModel.GravityField.Luna.Order = 70;
+GMAT Luna_ForceModel.GravityField.Luna.StmLimit = 100;
+GMAT Luna_ForceModel.GravityField.Luna.PotentialFile = 'C:\Users\court\OneDrive\Documents\GMAT\data\gravity\luna\grgm900c.cof';
+GMAT Luna_ForceModel.GravityField.Luna.TideFile = 'C:\Users\court\OneDrive\Documents\GMAT\data\gravity\luna\grgm900c.tide';
+GMAT Luna_ForceModel.GravityField.Luna.TideModel = 'None';
+GMAT Luna_ForceModel.SRP.Flux = 1367;
+GMAT Luna_ForceModel.SRP.SRPModel = Spherical;
+GMAT Luna_ForceModel.SRP.Nominal_Sun = 149597870.691;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator LunaProp;
+GMAT LunaProp.FM = Luna_ForceModel;
+GMAT LunaProp.Type = PrinceDormand78;
+GMAT LunaProp.InitialStepSize = 60;
+GMAT LunaProp.Accuracy = 9.999999999999999e-10;
+GMAT LunaProp.MinStep = 0;
+GMAT LunaProp.MaxStep = 1800;
+GMAT LunaProp.MaxStepAttempts = 100;
+GMAT LunaProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn ImpulsiveBurn1;
+GMAT ImpulsiveBurn1.CoordinateSystem = Local;
+GMAT ImpulsiveBurn1.Origin = Luna;
+GMAT ImpulsiveBurn1.Axes = VNB;
+GMAT ImpulsiveBurn1.Element1 = 0; 
+GMAT ImpulsiveBurn1.Element2 = 0;
+GMAT ImpulsiveBurn1.Element3 = 0; %0.0001;
+GMAT ImpulsiveBurn1.DecrementMass = false;
+GMAT ImpulsiveBurn1.Isp = 300;
+GMAT ImpulsiveBurn1.GravitationalAccel = 9.81;
+
+Create ImpulsiveBurn ImpulsiveBurnDIE;
+GMAT ImpulsiveBurnDIE.CoordinateSystem = Local;
+GMAT ImpulsiveBurnDIE.Origin = Luna;
+GMAT ImpulsiveBurnDIE.Axes = VNB;
+GMAT ImpulsiveBurnDIE.Element1 = 0;
+GMAT ImpulsiveBurnDIE.Element2 = 0;
+GMAT ImpulsiveBurnDIE.Element3 = 100;
+GMAT ImpulsiveBurnDIE.DecrementMass = false;
+GMAT ImpulsiveBurnDIE.Isp = 300;
+GMAT ImpulsiveBurnDIE.GravitationalAccel = 9.81;
+
+Create ImpulsiveBurn ImpulsiveBurn0;
+GMAT ImpulsiveBurn0.CoordinateSystem = Local;
+GMAT ImpulsiveBurn0.Origin = Luna;
+GMAT ImpulsiveBurn0.Axes = VNB;
+GMAT ImpulsiveBurn0.Element1 = 0;
+GMAT ImpulsiveBurn0.Element2 = 0;
+GMAT ImpulsiveBurn0.Element3 = 0.00000000001;
+GMAT ImpulsiveBurn0.DecrementMass = false;
+GMAT ImpulsiveBurn0.Isp = 300;
+GMAT ImpulsiveBurn0.GravitationalAccel = 9.81;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem LunaEcliptic;
+GMAT LunaEcliptic.Origin = Luna;
+GMAT LunaEcliptic.Axes = BodyInertial;
+%GMAT LunaEcliptic.Axes = BodyFixed;
+
+
+%----------------------------------------
+%---------- Outputs
+%----------------------------------------
+
+Create OrbitView LunaView;
+GMAT LunaView.SolverIterations = Current;
+GMAT LunaView.UpperLeft = [ 0.03930131004366812 0 ];
+GMAT LunaView.Size = [ 0.8 0.7997382198952879 ];
+GMAT LunaView.RelativeZOrder = 130;
+GMAT LunaView.Maximized = false;
+GMAT LunaView.Add = {Sat1, Sat2, Sat3, Sat4, Earth, Luna};
+GMAT LunaView.CoordinateSystem = LunaEcliptic;
+GMAT LunaView.DrawObject = [ true true true true ];
+GMAT LunaView.DataCollectFrequency = 1;
+GMAT LunaView.UpdatePlotFrequency = 300;
+GMAT LunaView.NumPointsToRedraw = 0;
+GMAT LunaView.ShowPlot = true;
+GMAT LunaView.MaxPlotPoints = 50000;
+GMAT LunaView.ShowLabels = true;
+GMAT LunaView.ViewPointReference = Luna;
+GMAT LunaView.ViewPointVector = [ 30000 10000 0 ];
+GMAT LunaView.ViewDirection = Luna;
+GMAT LunaView.ViewScaleFactor = 1;
+GMAT LunaView.ViewUpCoordinateSystem = LunaEcliptic;
+%GMAT LunaView.ViewUpCoordinateSystem = LunaEcliptic;
+GMAT LunaView.ViewUpAxis = Z;
+GMAT LunaView.EclipticPlane = Off;
+GMAT LunaView.XYPlane = Off;
+GMAT LunaView.WireFrame = Off;
+GMAT LunaView.Axes = On;
+GMAT LunaView.Grid = Off;
+GMAT LunaView.SunLine = Off;
+GMAT LunaView.UseInitialView = On;
+GMAT LunaView.StarCount = 7000;
+GMAT LunaView.EnableStars = On;
+GMAT LunaView.EnableConstellations = On;
+
+%Create ReportFile ReportFile1;
+%GMAT ReportFile1.SolverIterations = Current;
+%GMAT ReportFile1.UpperLeft = [ 0.02352941176470588 0.2275 ];
+%GMAT ReportFile1.Size = [ 0.9 0.78875 ];
+%GMAT ReportFile1.RelativeZOrder = 33;
+%GMAT ReportFile1.Maximized = false;
+%GMAT ReportFile1.Filename = '...\Sat1R.txt';
+%GMAT ReportFile1.Precision = 16;
+%GMAT ReportFile1.Add = {Sat1.LunaEcliptic.X, Sat1.LunaEcliptic.Y, Sat1.LunaEcliptic.Z};
+%GMAT ReportFile1.WriteHeaders = false;
+%GMAT ReportFile1.LeftJustify = On;
+%GMAT ReportFile1.ZeroFill = Off;
+%GMAT ReportFile1.FixedWidth = true;
+%GMAT ReportFile1.Delimiter = ' ';
+%GMAT ReportFile1.ColumnWidth = 23;
+%GMAT ReportFile1.WriteReport = true;
+
+%Create ReportFile ReportFile2;
+%GMAT ReportFile2.SolverIterations = Current;
+%GMAT ReportFile2.UpperLeft = [ 0 0 ];
+%GMAT ReportFile2.Size = [ 0 0 ];
+%GMAT ReportFile2.RelativeZOrder = 0;
+%GMAT ReportFile2.Maximized = false;
+%GMAT ReportFile2.Filename = '...\Sat2R.txt';
+%GMAT ReportFile2.Precision = 16;
+%GMAT ReportFile2.Add = {Sat2.LunaEcliptic.X, Sat2.LunaEcliptic.Y, Sat2.LunaEcliptic.Z};
+%GMAT ReportFile2.WriteHeaders = false;
+%GMAT ReportFile2.LeftJustify = On;
+%GMAT ReportFile2.ZeroFill = Off;
+%GMAT ReportFile2.FixedWidth = true;
+%GMAT ReportFile2.Delimiter = ' ';
+%GMAT ReportFile2.ColumnWidth = 23;
+%GMAT ReportFile2.WriteReport = true;
+
+%Create ReportFile ReportFile3;
+%GMAT ReportFile3.SolverIterations = Current;
+%GMAT ReportFile3.UpperLeft = [ 0 0 ];
+%GMAT ReportFile3.Size = [ 0 0 ];
+%GMAT ReportFile3.RelativeZOrder = 0;
+%GMAT ReportFile3.Maximized = false;
+%GMAT ReportFile3.Filename = '...\Time.txt';
+%GMAT ReportFile3.Precision = 16;
+%GMAT ReportFile3.Add = {Sat1.UTCGregorian};
+%GMAT ReportFile3.WriteHeaders = false;
+%GMAT ReportFile3.LeftJustify = On;
+%GMAT ReportFile3.ZeroFill = Off;
+%GMAT ReportFile3.FixedWidth = true;
+%GMAT ReportFile3.Delimiter = ' ';
+%GMAT ReportFile3.ColumnWidth = 23;
+%GMAT ReportFile3.WriteReport = true;
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+Create Variable distancetolerance xdist ydist zdist Distance;
+
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+BeginMissionSequence;
+
+GMAT Sat1.OrbitColor = 'Cyan';
+GMAT Sat2.OrbitColor = 'Green';
+
+GMAT distancetolerance = 5; %km
+
+
+While Sat1.ElapsedDays <= 0.07
+   Propagate LunaProp(Sat1) LunaProp(Sat2) LunaProp(Sat3) LunaProp(Sat4) {Sat1.ElapsedDays = 0.0007};
+   If Sat1.Luna.RMAG < 1744
+      Maneuver ImpulsiveBurnDIE(Sat1);
+   EndIf;
+   
+   If Sat2.Luna.RMAG < 1744
+      Maneuver ImpulsiveBurnDIE(Sat2);
+   EndIf;
+   
+   GMAT xdist = Sat1.LunaEcliptic.X - Sat2.LunaEcliptic.X;
+   GMAT ydist = Sat1.LunaEcliptic.Y - Sat2.LunaEcliptic.Y;
+   GMAT zdist = Sat1.LunaEcliptic.Z - Sat2.LunaEcliptic.Z;
+   GMAT Distance = sqrt(xdist^2 + ydist^2 + zdist^2);
+   
+   If Distance < distancetolerance
+      Maneuver ImpulsiveBurn1(Sat1);
+      %Maneuver ImpulsiveBurn0(Sat4000);
+      GMAT Sat1.OrbitColor = 'Red';
+   EndIf;
+
+EndWhile;
