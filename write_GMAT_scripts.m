@@ -1,16 +1,16 @@
 %% Courtney Text File Writing
 clear; clc; clf; close all;
 
-for iter = 1:1:3 % will eventually go to maybe 50
+for iter = 1:1:10 % this will write 10 script files for each number of satellites
 clearvars -except iter
 scriptlistfile = 'scriptlist.txt';
 
-    for numSats = 50:50:150
+    for numSats = 50:50:150 % this will write scripts for 50 satellites, 100 satellites, and 150 satellites
         listfile = fopen(scriptlistfile, 'w');
         fprintf(listfile, 'LunarOrbits_%d_%d.script\n', numSats,iter);
         fclose(listfile);
 
-        repFileName1 = sprintf("//home//gridsan//ckirkpatrick//LunarOrbits_%d_%d.script", numSats,iter);
+        repFileName1 = sprintf("//home//gridsan//ckirk//LunarOrbits_%d_%d.script", numSats,iter); % change to your file path
         delete(repFileName1)
 
         listfile = fopen(scriptlistfile,'r');
@@ -34,6 +34,7 @@ for ii = 1:1:numSats
     ECC = 0.000001*rand(1); 
     fprintf(fileID, 'GMAT Sat%d.ECC = %d\n', ii, ECC);
 
+% use these if statements if you want to weight frozen inclinations
     froz = rand(1);
     if froz>0.80
         INC = 86;
@@ -46,6 +47,7 @@ for ii = 1:1:numSats
     else
          INC = 90*rand(1);
     end
+% use the line below if you want the inclination to be random
     % INC = 90*rand(1);
     fprintf(fileID, 'GMAT Sat%d.INC = %d\n', ii, INC);
 
@@ -83,8 +85,8 @@ fprintf(fileID, 'GMAT Luna_ForceModel.ErrorControl = RSSStep;\n');
 fprintf(fileID, 'GMAT Luna_ForceModel.GravityField.Luna.Degree = 70;\n');
 fprintf(fileID, 'GMAT Luna_ForceModel.GravityField.Luna.Order = 70;\n');
 fprintf(fileID, 'GMAT Luna_ForceModel.GravityField.Luna.StmLimit = 100;\n');
-fprintf(fileID, 'GMAT Luna_ForceModel.GravityField.Luna.PotentialFile = ''//home//gridsan//ckirkpatrick//GMAT_2020//GMAT//R2020a//data//gravity//luna//grgm900c.cof'';\n');
-fprintf(fileID, 'GMAT Luna_ForceModel.GravityField.Luna.TideFile = ''//home//gridsan//ckirkpatrick//GMAT_2020//GMAT//R2020a//data//gravity//luna//grgm900c.tide'';\n');
+fprintf(fileID, 'GMAT Luna_ForceModel.GravityField.Luna.PotentialFile = ''//home//gridsan//ckirk//GMAT_2020//GMAT//R2020a//data//gravity//luna//grgm900c.cof'';\n'); % change to your file path
+fprintf(fileID, 'GMAT Luna_ForceModel.GravityField.Luna.TideFile = ''//home//gridsan//ckirk//GMAT_2020//GMAT//R2020a//data//gravity//luna//grgm900c.tide'';\n'); % change to your file path
 fprintf(fileID, 'GMAT Luna_ForceModel.GravityField.Luna.TideModel = ''None'';\n');
 fprintf(fileID, 'GMAT Luna_ForceModel.SRP.Flux = 1367;\n');
 fprintf(fileID, 'GMAT Luna_ForceModel.SRP.SRPModel = Spherical;\n');
@@ -169,7 +171,7 @@ for j = 1:1:numSats
     fprintf(fileID,'GMAT ReportFile%d.Size = [ 0.9 0.78875 ];\n', j);
     fprintf(fileID,'GMAT ReportFile%d.RelativeZOrder = 33;\n', j);
     fprintf(fileID,'GMAT ReportFile%d.Maximized = false;\n', j);
-    fprintf(fileID,'GMAT ReportFile%d.Filename = ''//home//gridsan//ckirkpatrick//%dsats%d//Sat%dR.txt'';\n', j, numSats, iter,j);
+    fprintf(fileID,'GMAT ReportFile%d.Filename = ''//home//gridsan//ckirk//%dsats%d//Sat%dR.txt'';\n', j, numSats, iter,j); % change to your file path
     fprintf(fileID,'GMAT ReportFile%d.Precision = 16;\n', j);
     fprintf(fileID,'GMAT ReportFile%d.Add = {Sat%d.LunaEcliptic.X, Sat%d.LunaEcliptic.Y, Sat%d.LunaEcliptic.Z};\n', j, j, j, j);
     fprintf(fileID,'GMAT ReportFile%d.WriteHeaders = false;\n', j);
@@ -193,9 +195,8 @@ end
 
 fprintf(fileID, 'EndWhile;');
 
-fclose(fileID);
-%system('cd ..');
-command = sprintf('%d %d', numSats, iter);
-system(['sbatch iter_rungmat.sh ' command])
+fclose(fileID)
+%command = sprintf('%d %d', numSats, iter);
+%system(['sbatch iter_rungmat.sh ' command])
     end
 end
